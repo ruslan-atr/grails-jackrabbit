@@ -1,4 +1,4 @@
-/* Copyright 2004-2005 Graeme Rocher
+/* Copyright 2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,6 @@ import org.xml.sax.InputSource;
  * Attempts to resolve configuration via InputStream if first resolve fails
  *
  * @author Graeme Rocher
- * @since 0.4
- *
- *        <p/>
- *        Created: Feb 7, 2007
- *        Time: 6:47:42 PM
  */
 public class RepositoryFactoryBean extends org.springmodules.jcr.jackrabbit.RepositoryFactoryBean {
 
