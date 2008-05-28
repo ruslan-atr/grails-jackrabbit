@@ -1,17 +1,20 @@
+import javax.jcr.SimpleCredentials
+import org.codehaus.groovy.grails.plugins.jcr.jackrabbit.RepositoryFactoryBean
+
 /* Copyright 2004-2005 Graeme Rocher
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 /**
  * A plugin for the Grails framework (http://grails.org) that provides JackRabbit
@@ -21,31 +24,47 @@
  */
 class JackrabbitGrailsPlugin {
     def version = 0.1
-    def dependsOn = [:]
-	
+    def author = "Sergey Nebolsin"
+    def authorEmail = "nebolsin@gmail.com"
+    def title = "This plugin provides JackRabbit-based implementation for JCR plugin."
+    def description = '''
+This plugin provides JackRabbit-based implementation for JCR plugin.
+'''
+    def documentation = "http://grails.org/Jackrabbit+plugin"
+
+    def dependsOn = [jcr:'0.1 > *']
+
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+        jcrRepository(RepositoryFactoryBean) {
+            configuration = "classpath:repository.xml"
+            homeDir = "/repo"
+        }
+
+        jcrPassword(String, "")
+
+        jcrCharArrayPassword(jcrPassword) {bean ->
+            bean.factoryMethod = "toCharArray"
+        }
+
+        jcrCredentials(SimpleCredentials, "user", jcrCharArrayPassword)
+
+        jcrSessionFactory(org.springmodules.jcr.JcrSessionFactory) {bean ->
+            bean.singleton = true
+            repository = jcrRepository
+            credentials = jcrCredentials
+        }
+
+        jcrTemplate(org.springmodules.jcr.JcrTemplate) {
+            sessionFactory = jcrSessionFactory
+            allowCreate = true
+        }
+
+        jcrTransactionManager(org.springmodules.jcr.jackrabbit.LocalTransactionManager) {
+            sessionFactory = jcrSessionFactory
+        }
     }
    
     def doWithApplicationContext = { applicationContext ->
         // TODO Implement post initialization spring config (optional)		
-    }
-
-    def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional)
-    }
-	                                      
-    def doWithDynamicMethods = { ctx ->
-        // TODO Implement registering dynamic methods to classes (optional)
-    }
-	
-    def onChange = { event ->
-        // TODO Implement code that is executed when this class plugin class is changed  
-        // the event contains: event.application and event.applicationContext objects
-    }
-                                                                                  
-    def onApplicationChange = { event ->
-        // TODO Implement code that is executed when any class in a GrailsApplication changes
-        // the event contain: event.source, event.application and event.applicationContext objects
     }
 }
